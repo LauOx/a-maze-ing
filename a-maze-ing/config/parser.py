@@ -67,16 +67,18 @@ def parse_config(config_file_path: str) -> ConfigFormat:
         with open(config_file_path, mode="r", encoding="utf-8") as file:
             content = file.readlines()
     
-    except FileNotFoundError:
-        raise FileNotFoundError("Config file not found: "
-                            f"{config_file_path}")
+    except FileNotFoundError as e:
+        raise MazeConfigError("Config file not found: "
+                            f"{config_file_path}: {e}")
     
-    except PermissionError:
-        raise PermissionError("PermissionError trying to open: "
-                            f"{config_file_path}")
+    except PermissionError as e:
+        raise MazeConfigError("Permission error trying to open: "
+                            f"{config_file_path}: {e}")
     
-    except IsADirectoryError:
-        raise IsADirectoryError(f"{config_file_path} it's a directory.")
+    except IsADirectoryError as e:
+        raise MazeConfigError(f"{config_file_path} is a directory: {e}")
+    except OSError as e:
+        raise MazeConfigError(f"OS error opening config file '{config_file_path}': {e}")
     
     # saves in a list of tuples, nb of line and content
     # line.strip() return "" if is an empty line

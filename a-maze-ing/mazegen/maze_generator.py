@@ -1,7 +1,7 @@
-from config.parser import parse_config, ConfigFormat, MazeConfigError
+from config.parser import ConfigFormat, MazeConfigError
 import random
 from collections import deque
-from typing import Optional, Tuple, List, Dict
+from typing import Tuple
 
 
 # class Cell and methods
@@ -44,11 +44,11 @@ class Maze:
         self.exit_xy: tuple[int, int] = data['exit']
         self.perfect: bool = data['perfect']
         self.out_file: str = data['output_file']
-        self.seed: Optional[int] = data.get('seed')
+        self.seed: int | None = data.get('seed')
         self.grid = [[Cell(x, y) for y in range(self.height)]
                      for x in range(self.width)]
         
-    def _block_42_pattern(self):
+    def _block_42_pattern(self) -> set[tuple[int, int]]:
         """
         blocks 42 pattern cells
         """
@@ -62,7 +62,7 @@ class Maze:
         ox = (self.width - 7) // 2
         oy = (self.height - 5) // 2
         
-        cells_to_block = set()
+        cells_to_block: set[tuple[int, int]] = set()
         for r in range(5):
             for c in range(7):
                 if pattern[r][c] == 1:
@@ -124,7 +124,10 @@ class Maze:
     # Solve Maze using BFS
     def solve(self) -> list[tuple[tuple[int, int], str]]:
         explored: deque[Tuple[int, int]] = deque([self.entry_xy])
-        origin: dict[tuple[int, int], tuple[tuple[int, int], str]] = {self.entry_xy, None}
+        origin: dict[
+            tuple[int, int],
+            tuple[tuple[int, int], str] | None
+        ] = {self.entry_xy: None}
         while explored:
             cx, cy = explored.popleft()
             if (cx, cy) == self.exit_xy:
@@ -142,7 +145,7 @@ class Maze:
         if self.exit_xy not in origin:
             raise MazeConfigError("Exit not found")
 
-        solve_list: List[Tuple[Cell, str]] = []
+        solve_list: list[tuple[tuple[int, int], str]] = []
         pos = self.exit_xy
         while origin[pos] is not None:
             info = origin[pos]
@@ -153,12 +156,12 @@ class Maze:
         solve_list.reverse()
         return solve_list
     
-    def hex_maze(self) -> List[str]:
+    def hex_maze(self) -> list[str]:
         """
         return hex representation of maze
         """
         hex_str = "0123456789ABCDEF"
-        hex_maze = []
+        hex_maze: list[str] = []
         line = ""
         for y in range(self.height):
             line = ""
@@ -177,30 +180,33 @@ class Maze:
             hex_maze.append(line)
         return hex_maze
 
-    def save_to_file(self):
+    def save_to_file(self, solution: list[str]) -> None:
         """
         saves hex representation of maze and solution
         """
-        file = "maze.txt"
-        solution = self.solve()
-        direction_list = [d for _, d in solution]
-        hex_maze = self.hex_maze()
+        file_path = self.out_file.strip().strip("'").strip('"')
         maze_entry = ",".join(str(i) for i in self.entry_xy)
         maze_exit = ",".join(str(e) for e in self.exit_xy)
+
         try:
-            with open(file, 'w') as f:
-                for x_str in hex_maze:
-                    line = x_str
-                    f.write(line)
-                    f.write("\n")
+            out = open(file_path, 'w', encoding='utf-8')
+        except (FileNotFoundError, PermissionError, IsADirectoryError) as e:
+            raise MazeConfigError(f"Unable to open output file '{file_path}': {e}")
+        except OSError as e:
+            raise MazeConfigError(f"OS error opening output file '{file_path}': {e}")
+
+        try:
+            with out as f:
+                for x_str in self.hex_maze():
+                    f.write(f"{x_str}\n")
+
                 f.write("\n")
                 f.write(maze_entry)
                 f.write("\n")
                 f.write(maze_exit)
                 f.write("\n")
-                for d in direction_list:
-                    f.write(d)
+                f.write("".join(solution))
         except OSError as e:
-            print(f"Caught an error generating 'maze.txt' file: {e}")
+            raise MazeConfigError(f"Unable to write output file '{file_path}': {e}")
     
     

@@ -22,7 +22,14 @@ COLOR_PALETTE = [
     ["\033[48;5;55m", "\033[48;5;177m", "\033[38;5;177m", "\033[48;5;99m", "\033[0m", "\033[38;5;226m"]
 ]
 
-def print_maze(maze, pattern_42: set, solution_path: list = None, instant_solution: bool = False, theme_idx: int = 4, random_color: bool = False):
+def print_maze(
+        maze: Maze,
+        pattern_42: set[tuple[int, int]],
+        solution_path: list[tuple[int,int]] | None  = None,
+        animated_solution: bool = False,
+        theme_idx: int = 4,
+        random_color: bool = False
+    ) -> int:
     if random_color:
         theme_idx = random.randint(0, len(COLOR_PALETTE) - 1)
         
@@ -35,7 +42,9 @@ def print_maze(maze, pattern_42: set, solution_path: list = None, instant_soluti
 
     r_style = bg + font
     
-    sol_set = set(solution_path) if solution_path and instant_solution else set()
+    sol_set: set[tuple[int, int]] = (
+        set(solution_path) if solution_path else set[tuple[int, int]]()
+    )
 
     # 🔹 Linea superior inicial
     top_line = r_style
@@ -61,7 +70,7 @@ def print_maze(maze, pattern_42: set, solution_path: list = None, instant_soluti
                 content = path + " * " + ec + r_style
             elif (x, y) in pattern_42:
                 content = ft + " * " + ec + r_style
-            elif (x, y) in sol_set:
+            elif (x, y) in sol_set and not animated_solution:
                 # Renderiza la solucion de forma instantanea si se solicito
                 content = sol + " • " + ec + r_style
             else:
@@ -90,10 +99,10 @@ def print_maze(maze, pattern_42: set, solution_path: list = None, instant_soluti
     return theme_idx
 
 
-def header_yield(file_path: str) ->Generator[dict, None, None]:
+def header_yield(file_path: str) -> Generator[dict, None, None]:
     """
     """
-    with open(file_path) as f:
+    with open(file_path, encoding='utf-8') as f:
         for line in f:
            for c in line:
                 yield c
@@ -128,7 +137,14 @@ def animate_solution(maze, solution_path: list, theme_idx: int = 4):
     print()
 
 
-def display(maze, pattern_42: set, solution_path: list = None, instant_solution: bool = False, theme_idx: int = 4, random_color: bool = False) -> None:
+def display(
+        maze: Maze,
+        pattern_42: set[tuple[int, int]],
+        solution_path: list[tuple[int,int]] | None = None,
+        animated_solution: bool = False,
+        theme_idx: int = 4,
+        random_color: bool = False
+    ) -> None:
     """
     """
     try:
@@ -139,11 +155,11 @@ def display(maze, pattern_42: set, solution_path: list = None, instant_solution:
             print(c, end="", flush=True)
             time.sleep(0.005)
 
-    except FileNotFoundError as e:
+    except (FileNotFoundError, PermissionError, IsADirectoryError, OSError) as e:
         print(f"Caught an error: {e}")
 
     # print_maze retorna el indice de tema utilizado (util por si fue randomizado)
-    applied_theme = print_maze(maze, pattern_42, solution_path, instant_solution, theme_idx, random_color)
+    applied_theme = print_maze(maze, pattern_42, solution_path, animated_solution, theme_idx, random_color)
     
-    if solution_path and not instant_solution:
+    if solution_path and animated_solution:
         animate_solution(maze, solution_path, applied_theme)
