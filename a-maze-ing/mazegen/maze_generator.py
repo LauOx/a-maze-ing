@@ -122,10 +122,9 @@ class Maze:
                     c1.union(c2)
 
     # Solve Maze using BFS
-    def solve(self) -> List[Tuple[Cell, str]]:
+    def solve(self) -> list[tuple[tuple[int, int], str]]:
         explored: deque[Tuple[int, int]] = deque([self.entry_xy])
-        origin: Dict[Tuple[int, int], Optional
-                     [Tuple[Tuple[int, int], str]]] = {self.entry_xy: None}
+        origin: dict[tuple[int, int], tuple[tuple[int, int], str]] = {self.entry_xy, None}
         while explored:
             cx, cy = explored.popleft()
             if (cx, cy) == self.exit_xy:

@@ -1,3 +1,33 @@
+
+25/04/26
+
+[CREAR ISUE] -> Laura
+EL save_to_file() tiene alguna incompatibilidad con el maze.tx harcodeado, siendo que ya existe un self.output_file configurado en el ConfigFormat del maze_generator.py  
+
+[ISSUE] -> 
+En a-maze-ing.py hay metodo y variable con nombres identicos.
+La salida del error, deberia indicar salida no exitosa, no? EL mensaje de error es entendible, pero creo que deberia de indicar que fallo algo en su funcionamiento, aparte del print.
+
+[ISSUE]
+
+"Arreglar encapsulamiento de los _metodos". En a-maze-ing.py 
+
+Pendientes: 
+Validar límites estructurales del patrón 42
+Objetivo: evitar estados inválidos de generación.
+Acción: validar dimensiones mínimas antes de bloquear patrón.
+Criterio de cierre: error claro y temprano para tamaños no compatibles.
+Resolver modo dinámico animado vs instantáneo
+Objetivo: evitar rotura visual por terminal chica.
+Acción: medir viewport y forzar instant_solution cuando no alcance alto/ancho.
+Criterio de cierre: en terminal pequeña no se rompe la animación, cae en modo instantáneo.
+Harden de calidad
+Objetivo: asegurar estabilidad.
+Acción: pruebas manuales con casos: maze chico, grande, random_color true, instant true/false, salida de archivo.
+Criterio de cierre: contrato UI + archivo consistente en todos los casos.
+
+
+
 -----
 24/04/26
 
