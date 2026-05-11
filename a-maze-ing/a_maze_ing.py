@@ -25,7 +25,9 @@ def main() -> None:
         print(f"DependencyError: {e}")
     except DisplayMazeError as e:
         print(f"DisplayMazeError Error: {e}")
-    except (MazeGenerationError, MazeIOError) as e:
+    except MazeIOError as e:
+        print(f"MazeIOError: {e}")
+    except MazeGenerationError as e:
         print(f"MazeGenerationError: {e}")
     except Exception as e:
         print(f"Unexpected Error: {e}")

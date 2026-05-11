@@ -180,7 +180,10 @@ def parse_config(config_file_path: str) -> ConfigFormat:
     # PERFECT MAZE
     perfect_str = temp["PERFECT"].lower()
     if perfect_str not in ("true", "false"):
-        raise MazeConfigError("PERFECT needs to be 'true' or 'false'.")
+        raise MazeConfigError(
+            "PERFECT needs to be 'true' or 'false'. "
+            f"Got: '{perfect_str}'."
+        )
     perfect = (perfect_str == "true")
 
     # # UI SETTINGS (default values)
