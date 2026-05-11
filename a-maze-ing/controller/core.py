@@ -107,7 +107,7 @@ def run_visuals(
         DependencyError:
             If the input dependency is missing.
         DisplayMazeError:
-            If there is an error during the display
+            Propagated if there is an error during the display
             of the maze or the solution animation.
         MazeGenerationError:
             If solving or saving the maze fails.
