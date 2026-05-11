@@ -20,11 +20,11 @@ def main() -> None:
     except ImposibleMazeError as e:
         print(f"ImposibleMazeError: {e}")
     except MazeConfigError as e:
-        print(f"MazeConfigError Error: {e}")
+        print(f"MazeConfigError: {e}")
     except DependencyError as e:
         print(f"DependencyError: {e}")
     except DisplayMazeError as e:
-        print(f"DisplayMazeError Error: {e}")
+        print(f"DisplayMazeError: {e}")
     except MazeIOError as e:
         print(f"MazeIOError: {e}")
     except MazeGenerationError as e:
