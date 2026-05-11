@@ -56,7 +56,8 @@ def parse_coord(value: str) -> tuple[int, int]:
         tuple[int, int]: A tuple containing the x and y integer coordinates.
 
     Raises:
-        MazeConfigError: If the input string does not contain exactly two elements.
+        MazeConfigError: If the input string does not contain exactly two
+            elements.
         MazeConfigError: If the coordinate values are not valid integers.
     """
     coor = [c.strip() for c in value.split(',')]

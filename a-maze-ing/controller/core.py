@@ -11,8 +11,7 @@ from ui import (
     header_animation,
     static_header,
     menu_visuals,
-    display_maze,
-    DisplayMazeError
+    display_maze
 )
 from mazegen import MazeGenerator as Maze
 
