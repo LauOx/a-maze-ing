@@ -77,7 +77,7 @@ def parse_coord(value: str) -> tuple[int, int]:
         return (x, y)
     except ValueError:
         raise ValueError(f"Invalid coordinate value: '{value}' "
-                              "(Expected x,y with integers)")
+                         "(Expected x,y with integers)")
 
 
 def parse_config(config_file_path: str) -> ConfigFormat:
@@ -86,7 +86,8 @@ def parse_config(config_file_path: str) -> ConfigFormat:
 
     Args (config_file_path): The path to the config file .txt
 
-    Returns (ConfigFormat): TypeDict with Key=name and Value=value of the parameter
+    Returns (ConfigFormat): TypeDict with Key=name and Value=value
+                            of the parameter
 
     Raise:
         MazeConfigError if key or value are invalid
@@ -183,7 +184,7 @@ def parse_config(config_file_path: str) -> ConfigFormat:
         print(f"ValueError: {e}", file=sys.stderr)
         exit(1)
     except MazeConfigError as e:
-        print(f"MazeConfigError: {e}" file=sys.stderr)
+        print(f"MazeConfigError: {e}", file=sys.stderr)
         exit(1)
 
     # PERFECT MAZE

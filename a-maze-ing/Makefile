@@ -23,5 +23,5 @@ lint:
 	mypy . --explicit-package-bases --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs --exclude=.venv,venv,env,__pycache__,.git
 
 lint-strict:
-	flake8 .
-	mypy . --explicit-package-bases --strict
+	flake8 . --exclude=.venv,venv,env,__pycache__,.git
+	mypy . --explicit-package-bases --strict --exclude=.venv,venv,env,__pycache__,.git
