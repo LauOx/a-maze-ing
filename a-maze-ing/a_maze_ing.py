@@ -18,19 +18,19 @@ def main() -> None:
         run_visuals(maze, pattern, config)
 
     except ImposibleMazeError as e:
-        print(f"ImposibleMazeError: {e}")
+        print(f"ImposibleMazeError: {e}", file=sys.stderr)
     except MazeConfigError as e:
-        print(f"MazeConfigError: {e}")
+        print(f"MazeConfigError: {e}", file=sys.stderr)
     except DependencyError as e:
-        print(f"DependencyError: {e}")
+        print(f"DependencyError: {e}", file=sys.stderr)
     except DisplayMazeError as e:
-        print(f"DisplayMazeError: {e}")
+        print(f"DisplayMazeError: {e}", file=sys.stderr)
     except MazeIOError as e:
-        print(f"MazeIOError: {e}")
+        print(f"MazeIOError: {e}", file=sys.stderr)
     except MazeGenerationError as e:
-        print(f"MazeGenerationError: {e}")
+        print(f"MazeGenerationError: {e}", file=sys.stderr)
     except Exception as e:
-        print(f"Unexpected Error: {e}")
+        print(f"Unexpected Error: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":

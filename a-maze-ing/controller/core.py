@@ -17,7 +17,11 @@ from mazegen import MazeGenerator as Maze
 
 
 class DependencyError(RuntimeError):
-    """Exception raised when a required runtime dependency is missing."""
+    """Exception raised when a required runtime dependency is missing.
+
+    Raised when readchar or other required runtime dependencies cannot be
+    imported.
+    """
     pass
 
 
