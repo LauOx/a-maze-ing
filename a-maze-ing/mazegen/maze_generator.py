@@ -9,6 +9,11 @@ class MazeGenerationError(Exception):
     pass
 
 
+class MazeIOError(MazeGenerationError):
+    """Custom exception for maze input/output errors."""
+    pass
+
+
 # class Cell and methods
 class Cell:
     """
@@ -189,8 +194,10 @@ class MazeGenerator:
                 f.write("\n")
                 for d in direction_list:
                     f.write(d)
-        except OSError as e:
-            print(f"Caught an error generating '{filename}.txt' file: {e}")
+        except OSError as exc:
+            raise MazeIOError(
+                f"Error writing maze output to '{filename}': {exc}"
+            ) from exc
 
     # --- PRIVATE GENERATION LOGICS ---
     def _generate_logic(self) -> None:

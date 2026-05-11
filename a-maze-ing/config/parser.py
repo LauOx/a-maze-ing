@@ -1,4 +1,3 @@
-import sys
 from typing import TypedDict, Dict
 
 # sets of the autorized keys
@@ -58,7 +57,7 @@ def parse_coord(value: str) -> tuple[int, int]:
 
     Raises:
         MazeConfigError: If the input string does not contain exactly two elements.
-        ValueError: If the coordinate values are not valid integers.
+        MazeConfigError: If the coordinate values are not valid integers.
     """
     coor = [c.strip() for c in value.split(',')]
 
@@ -70,10 +69,12 @@ def parse_coord(value: str) -> tuple[int, int]:
     try:
         x = int(coor[0])
         y = int(coor[1])
-        return (x, y)
-    except ValueError:
-        raise ValueError(f"Invalid coordinate value: '{value}' "
-                         "(Expected x,y with integers)")
+    except ValueError as exc:
+        raise MazeConfigError(
+            f"Invalid coordinate value: '{value}' "
+            "(Expected x,y with integers)"
+        ) from exc
+    return (x, y)
 
 
 def parse_config(config_file_path: str) -> ConfigFormat:
@@ -86,13 +87,8 @@ def parse_config(config_file_path: str) -> ConfigFormat:
                             of the parameter
 
     Raises:
-        MazeConfigError if key or value are invalid
-        ValueError if value is not integrer
-        and file errors:
-        FileNotFoundError
-        PermissionError
-        IsADirectoryError
-        OsError
+        MazeConfigError if key or value are invalid,
+        or if the configuration file cannot be opened.
     """
     # Temporal dictionary to save the data and check
     temp: Dict[str, str] = {}
@@ -165,27 +161,25 @@ def parse_config(config_file_path: str) -> ConfigFormat:
     # WIDTH AND HEIGHT
     w = temp["WIDTH"]
     h = temp["HEIGHT"]
-    width = int(w)
-    height = int(h)
+    try:
+        width = int(w)
+        height = int(h)
+    except ValueError as exc:
+        raise MazeConfigError(
+            f"WIDTH and HEIGHT must be integers. Entered W: {w} and H: {h}"
+        ) from exc
     if width <= 0 or height <= 0:
         raise MazeConfigError('WIDTH and HEIGHT must be positive '
                               'integers greater than 0. Entered '
                               f'W: {w} and H: {h}')
     # ENTRY AND EXIT
-    try:
-        entry_xy = parse_coord(temp["ENTRY"])
-        exit_xy = parse_coord(temp["EXIT"])
-    except ValueError as e:
-        print(f"ValueError: {e}", file=sys.stderr)
-        exit(1)
-    except MazeConfigError as e:
-        print(f"MazeConfigError: {e}", file=sys.stderr)
-        exit(1)
+    entry_xy = parse_coord(temp["ENTRY"])
+    exit_xy = parse_coord(temp["EXIT"])
 
     # PERFECT MAZE
     perfect_str = temp["PERFECT"].lower()
     if perfect_str not in ("true", "false"):
-        raise ValueError("PERFECT needs to be 'true' or 'false'.")
+        raise MazeConfigError("PERFECT needs to be 'true' or 'false'.")
     perfect = (perfect_str == "true")
 
     # # UI SETTINGS (default values)
@@ -202,4 +196,3 @@ def parse_config(config_file_path: str) -> ConfigFormat:
             "seed": seed,
             "theme_idx": theme_idx,
             }
-

@@ -15,13 +15,23 @@ from ui import (
     DisplayMazeError
 )
 from mazegen import MazeGenerator as Maze
-try:
-    import readchar
-except ImportError:
-    print("[ERROR] Library 'readchar' is missing", file=sys.stderr)
-    print("please run 'make install' (or: 'pip install .') "
-          "to install the required dependencies", file=sys.stderr)
-    sys.exit(1)
+
+
+class DependencyError(RuntimeError):
+    """Exception raised when a required runtime dependency is missing."""
+    pass
+
+
+def _load_readchar():
+    try:
+        import readchar
+    except ImportError as exc:
+        raise DependencyError(
+            "Library 'readchar' is missing. "
+            "Run 'make install' (or: 'pip install .') "
+            "to install the required dependencies."
+        ) from exc
+    return readchar
 
 
 def setup_config(file_path: str) -> ConfigFormat:
@@ -91,10 +101,16 @@ def run_visuals(
             The configuration dictionary containing settings for the maze
             generation and display.
     raises:
+        DependencyError:
+            If the input dependency is missing.
         DisplayMazeError:
             If there is an error during the display
-            of the maze or the solution animation."""
+            of the maze or the solution animation.
+        MazeGenerationError:
+            If solving or saving the maze fails.
+    """
 
+    readchar = _load_readchar()
     print("\033[H\033[J\033[3J", end="")
     running = True
     show_solution = False
@@ -106,28 +122,17 @@ def run_visuals(
 
         static_header()
 
-        try:
-            display_maze(
-                maze,
-                pattern,
-                # maze.solve(),
-                config["theme_idx"],
-                # config["random_color"]
-            )
-
-        except DisplayMazeError as e:
-            print(f"\nDisplayMazeError: {e}")
-            return
+        display_maze(
+            maze,
+            pattern,
+            # maze.solve(),
+            config["theme_idx"],
+            # config["random_color"]
+        )
 
         if show_solution:
 
-            try:
-                animation(maze, maze.solve(), config["theme_idx"])
-
-            except DisplayMazeError as e:
-                print(f"\n\nDisplayMazeError: {e}")
-                print("bye!")
-                return
+            animation(maze, maze.solve(), config["theme_idx"])
 
         menu_visuals(config["theme_idx"])
 
