@@ -18,7 +18,7 @@ def maze_validator(config: ConfigFormat) -> bool:
         MazeConfigError: If the dimensions exceed 60, coordinates
             are out of bounds, or the seed is not an integer.
         ImposibleMazeError: If the width or height is below
-            the minimum value of 5.
+            the minimum value of 5 or the exit / entry is inside 42 pattern.
     """
     width = config["width"]
     height = config["height"]
@@ -51,7 +51,7 @@ def maze_validator(config: ConfigFormat) -> bool:
     return True
 
 
-def check_42_pattern(config: ConfigFormat) -> bool:
+def check_42_pattern_fits(config: ConfigFormat) -> bool:
     """
     Check if the '42' pattern can be applied to the maze configuration.
 
@@ -62,30 +62,38 @@ def check_42_pattern(config: ConfigFormat) -> bool:
     Returns:
         bool: True if the pattern is applicable,
         False if the maze is too small.
+    """
+    width = config["width"]
+    height = config["height"]
+    entry_xy = config["entry_xy"]
+    exit_xy = config["exit_xy"]
+    use_pattern_42 = True
+    if width < 15 or height < 15:
+        print("Warning: Maze dimensions are too small to accommodate "
+              "the '42' pattern. The pattern will be ignored.")
+        use_pattern_42 = False
 
+    return use_pattern_42
+
+
+def validate_entry_exit(
+                        width:int,
+                        height:int,
+                        entry_xy: int,
+                        exit_xy:int
+                        ) -> None:
+    """
     Raises:
         ImposibleMazeError: If the entry or exit point is located within
             the coordinates blocked by the '42' pattern.
     """
     from mazegen import block_42_pattern
-    width = config["width"]
-    height = config["height"]
-    entry = config["entry_xy"]
-    exit = config["exit_xy"]
-    use_patttern_42 = True
-    if width < 15 or height < 15:
-        print("Warning: Maze dimensions are too small to accommodate "
-              "the '42' pattern. The pattern will be ignored.")
-        use_patttern_42 = False
-    if use_patttern_42:
-        cells_to_block = block_42_pattern(width, height)
-        if tuple(entry) in cells_to_block:
-            raise ImposibleMazeError(
-                "Entry point is blocked by the 42 pattern."
-                )
-        if tuple(exit) in cells_to_block:
-            raise ImposibleMazeError(
-                "Exit point is blocked by the 42 pattern."
-                )
-
-    return use_patttern_42
+    cells_to_block = block_42_pattern(width, height)
+    if tuple(entry_xy) in cells_to_block:
+        raise ImposibleMazeError(
+            "Entry point is blocked by the 42 pattern."
+            )
+    if tuple(exit_xy) in cells_to_block:
+        raise ImposibleMazeError(
+            "Exit point is blocked by the 42 pattern."
+            )

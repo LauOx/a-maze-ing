@@ -12,10 +12,7 @@ MANDATORY_KEYS: set[str] = {
     }
 
 OPTIONAL_KEYS: set[str] = {
-        "SEED",
-        # "RANDOM_COLOR",
-        # "INSTANT_SOLUTION",
-        # "THEME_IDX"
+        "SEED"
     }
 
 ALLOWED_KEYS: set[str] = MANDATORY_KEYS | OPTIONAL_KEYS
@@ -35,9 +32,9 @@ class ImposibleMazeError(MazeConfigError):
 class ConfigFormat(TypedDict):
     """Define dictionary that follows the format
 
-    Raise:
-        ValueError if the values are not in the expected format.
-        MazeConfigError if the config file is not valid
+    Raises:
+        ValueError if the values are not int.
+        MazeConfigError if the value format is not valid
     """
     width: int
     height: int
@@ -47,7 +44,6 @@ class ConfigFormat(TypedDict):
     perfect: bool
     seed: int | None
     theme_idx: int
-    random_color: bool
 
 
 def parse_coord(value: str) -> tuple[int, int]:
@@ -61,8 +57,8 @@ def parse_coord(value: str) -> tuple[int, int]:
         tuple[int, int]: A tuple containing the x and y integer coordinates.
 
     Raises:
-        ValueError: If the input string does not contain exactly two elements.
-        MazeConfigError: If the coordinate values are not valid integers.
+        MazeConfigError: If the input string does not contain exactly two elements.
+        ValueError: If the coordinate values are not valid integers.
     """
     coor = [c.strip() for c in value.split(',')]
 
@@ -89,16 +85,16 @@ def parse_config(config_file_path: str) -> ConfigFormat:
     Returns (ConfigFormat): TypeDict with Key=name and Value=value
                             of the parameter
 
-    Raise:
+    Raises:
         MazeConfigError if key or value are invalid
         ValueError if value is not integrer
-        File errors:
+        and file errors:
         FileNotFoundError
         PermissionError
         IsADirectoryError
         OsError
     """
-    # temporal dictionary to save the data and check
+    # Temporal dictionary to save the data and check
     temp: Dict[str, str] = {}
     try:
         with open(config_file_path, mode="r", encoding="utf-8") as file:
@@ -119,13 +115,12 @@ def parse_config(config_file_path: str) -> ConfigFormat:
         raise MazeConfigError("OS error opening config file "
                               f"'{config_file_path}': {e}")
 
-    # saves in a list of tuples, nb of line and content
-    # line.strip() return "" if is an empty line
+    # Saves in a list of tuples, nb of line and content
     data_lines = [(i, line.strip()) for i, line
                   in enumerate(content, start=1)
                   if line.strip() and not line.strip().startswith('#')]
 
-    # format check
+    # Format check
     for i, line in data_lines:
         if "=" not in line:
             raise MazeConfigError("Invalid format. Expected KEY=VALUE")
@@ -143,7 +138,7 @@ def parse_config(config_file_path: str) -> ConfigFormat:
 
         temp[key] = value
 
-    # allowed and missing keys check
+    # Allowed and missing keys check
     all_keys = temp.keys()
     not_allowed = [k for k in all_keys - ALLOWED_KEYS]
     missing_key = [k for k in MANDATORY_KEYS - all_keys]
@@ -155,7 +150,7 @@ def parse_config(config_file_path: str) -> ConfigFormat:
     if missing_key:
         raise MazeConfigError(f"Missing required key(s): {missing_key}")
 
-    # parsing values
+    # Parsing values
     # SEED
     raw_seed = temp.get("SEED")
 
@@ -193,9 +188,8 @@ def parse_config(config_file_path: str) -> ConfigFormat:
         raise ValueError("PERFECT needs to be 'true' or 'false'.")
     perfect = (perfect_str == "true")
 
-    # UI SETTINGS (default values)
+    # # UI SETTINGS (default values)
     theme_idx = int(temp.get("THEME_IDX", 4))
-    random_color = temp.get("RANDOM_COLOR", "false").lower() == "true"
 
     # Return ConfigFormat
     return {
@@ -207,16 +201,5 @@ def parse_config(config_file_path: str) -> ConfigFormat:
             "perfect": perfect,
             "seed": seed,
             "theme_idx": theme_idx,
-            "random_color": random_color
             }
 
-
-# dict = parse_config("config.txt")
-# if __name__ == "__main__":
-#     import sys
-#     try:
-#         dict = parse_config("config.txt")
-#         print("Lectura manual exitosa, aqui está el diccionario: ", dict)
-#     except Exception as e:
-#         print("Test fallido con error:"
-#               f"\n{type(e).__name__}: {e}", file=sys.stderr)

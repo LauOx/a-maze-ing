@@ -1,5 +1,11 @@
 import sys
-from config import ConfigFormat, parse_config, maze_validator, check_42_pattern
+from config import (
+    ConfigFormat,
+    parse_config,
+    maze_validator,
+    check_42_pattern_fits,
+    validate_entry_exit
+)
 from ui import (
     animation,
     header_animation,
@@ -54,8 +60,15 @@ def build_maze(
     )
     maze.generate()
     pattern = None
-    if check_42_pattern(config):
+    if check_42_pattern_fits(config):
         pattern = maze.block_42_pattern(maze.width, maze.height)
+    if pattern:
+        validate_entry_exit(
+            maze.width,
+            maze.height,
+            maze.entry_xy,
+            maze.exit_xy
+            )
 
     return maze, pattern
 
@@ -99,7 +112,7 @@ def run_visuals(
                 pattern,
                 # maze.solve(),
                 config["theme_idx"],
-                config["random_color"]
+                # config["random_color"]
             )
 
         except DisplayMazeError as e:
