@@ -17,18 +17,15 @@ def main() -> None:
         maze, pattern = build_maze(config)
         run_visuals(maze, pattern, config)
 
-    except ImposibleMazeError as e:
-        print(f"ImposibleMazeError: {e}", file=sys.stderr)
-    except MazeConfigError as e:
-        print(f"MazeConfigError: {e}", file=sys.stderr)
-    except DependencyError as e:
-        print(f"DependencyError: {e}", file=sys.stderr)
-    except DisplayMazeError as e:
-        print(f"DisplayMazeError: {e}", file=sys.stderr)
-    except MazeIOError as e:
-        print(f"MazeIOError: {e}", file=sys.stderr)
-    except MazeGenerationError as e:
-        print(f"MazeGenerationError: {e}", file=sys.stderr)
+    except (
+        ImposibleMazeError,
+        MazeConfigError,
+        DependencyError,
+        DisplayMazeError,
+        MazeIOError,
+        MazeGenerationError
+    ) as e:
+        print(f"{type(e).__name__}: {e}", file=sys.stderr)
     except Exception as e:
         print(f"Unexpected Error: {e}", file=sys.stderr)
 
