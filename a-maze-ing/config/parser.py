@@ -1,3 +1,4 @@
+import sys
 from typing import TypedDict, Dict
 
 # sets of the autorized keys
@@ -75,7 +76,7 @@ def parse_coord(value: str) -> tuple[int, int]:
         y = int(coor[1])
         return (x, y)
     except ValueError:
-        raise MazeConfigError(f"Invalid coordinate value: '{value}' "
+        raise ValueError(f"Invalid coordinate value: '{value}' "
                               "(Expected x,y with integers)")
 
 
@@ -83,14 +84,18 @@ def parse_config(config_file_path: str) -> ConfigFormat:
     """
     Parse the maze configuration file.
 
-    Args (config_file_path): the path
+    Args (config_file_path): The path to the config file .txt
 
-    Returns (ConfigFormat): dict with the name and value of the parameter
+    Returns (ConfigFormat): TypeDict with Key=name and Value=value of the parameter
 
     Raise:
         MazeConfigError if key or value are invalid
         ValueError if value is not integrer
-        FileNotFoundError if config file doesn't exist
+        File errors:
+        FileNotFoundError
+        PermissionError
+        IsADirectoryError
+        OsError
     """
     # temporal dictionary to save the data and check
     temp: Dict[str, str] = {}
@@ -175,7 +180,11 @@ def parse_config(config_file_path: str) -> ConfigFormat:
         entry_xy = parse_coord(temp["ENTRY"])
         exit_xy = parse_coord(temp["EXIT"])
     except ValueError as e:
-        raise MazeConfigError(f"Invalid coordinate value: {e}")
+        print(f"ValueError: {e}", file=sys.stderr)
+        exit(1)
+    except MazeConfigError as e:
+        print(f"MazeConfigError: {e}" file=sys.stderr)
+        exit(1)
 
     # PERFECT MAZE
     perfect_str = temp["PERFECT"].lower()

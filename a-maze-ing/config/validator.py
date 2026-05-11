@@ -26,11 +26,17 @@ def maze_validator(config: ConfigFormat) -> bool:
     exit = config["exit_xy"]
 
     if width > 60 or height > 60:
-        raise MazeConfigError(f"Width '{width if width > 50 else height}' "
-                              "exceeds the maximum allowed value of 50.")
+        which = "Width" if width > 60 else "Height"
+        value = width if width > 60 else height
+        raise MazeConfigError(
+            f"{which} '{value}' exceeds the maximum allowed value of 60."
+        )
     if width < 5 or height < 5:
-        raise ImposibleMazeError(f"Width '{width if width < 5 else height}' "
-                                 "is below the minimum allowed value of 5.")
+        which = "Width" if width < 5 else "Height"
+        value = width if width < 5 else height
+        raise ImposibleMazeError(
+            f"{which} '{value}' is below the minimum allowed value of 5."
+        )
     if not (entry[0] >= 0 and entry[0] < width and entry[1] >= 0
             and entry[1] < height):
         raise MazeConfigError(f"Entry coordinates {entry} are out of bounds "

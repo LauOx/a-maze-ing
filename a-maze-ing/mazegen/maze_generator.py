@@ -269,7 +269,7 @@ class MazeGenerator:
 
         # Breaking walls simulations
         for (c1, c2, wall1, wall2) in intact_walls:
-            if random.random() > 0.1:
+            if random.random() > 0.2:
                 continue
             c1.walls[wall1] = False
             c2.walls[wall2] = False
@@ -425,7 +425,7 @@ class MazeGenerator:
                 if pattern[r][c] == 1:
                     cells_to_block.add((ox + c, oy + r))
         return cells_to_block
-    
+
     def get_maze_grid(self) -> list[list[int]]:
         """
         Gets the maze grid as a 2D list of integers, where each integer
