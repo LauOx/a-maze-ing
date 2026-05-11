@@ -18,7 +18,7 @@ from mazegen import MazeGenerator as Maze
 try:
     import readchar
 except ImportError:
-    print("[ERROR] Library 'readchar' is missing", file=sys.stderr)
+    print("ImportError: Library 'readchar' is missing", file=sys.stderr)
     print("please run 'make install' (or: 'pip install .') "
           "to install the required dependencies", file=sys.stderr)
     sys.exit(1)
@@ -38,8 +38,9 @@ def setup_config(file_path: str) -> ConfigFormat:
 def build_maze(
         config: ConfigFormat
         ) -> tuple[Maze, set[tuple[int, int]] | None]:
-    """Generates the maze and applies the '42' pattern if applicable.
+    """Generate the maze and applies the '42' pattern if applicable.
     returns the maze object and the pattern cells if the pattern is applied.
+
     Args:
         config (dict):
             The configuration dictionary containing
@@ -78,7 +79,7 @@ def run_visuals(
         pattern: set[tuple[int, int]] | None,
         config: ConfigFormat
         ) -> None:
-    """Handles the display of the maze and the user interaction loop
+    """Handle the display of the maze and the user interaction loop
     for regenerating the maze, toggling the solution animation,
     changing color themes, and quitting the program.
      Args:
@@ -90,10 +91,13 @@ def run_visuals(
         config (dict):
             The configuration dictionary containing settings for the maze
             generation and display.
-    raises:
+    Raises:
         DisplayMazeError:
             If there is an error during the display
-            of the maze or the solution animation."""
+            of the maze or the solution animation.
+    Note:
+        For better understanding of ANSI code usage
+        check the README.md file, resource section"""
 
     print("\033[H\033[J\033[3J", end="")
     running = True
@@ -110,14 +114,14 @@ def run_visuals(
             display_maze(
                 maze,
                 pattern,
-                # maze.solve(),
                 config["theme_idx"],
-                # config["random_color"]
             )
 
         except DisplayMazeError as e:
             print(f"\nDisplayMazeError: {e}")
             return
+
+        maze.save_to_file(config["output_file"])
 
         if show_solution:
 
@@ -154,8 +158,6 @@ def run_visuals(
         except KeyboardInterrupt:
             print("\nKeyboardInterrupt detected. Bye!...", file=sys.stderr)
             return
-
-        maze.save_to_file(config["output_file"])
 
     print("\033[H\033[J\033[3J", end="")
     print("bye!")

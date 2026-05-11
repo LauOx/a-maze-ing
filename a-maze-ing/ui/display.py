@@ -1,12 +1,9 @@
 import os
-import random
 from typing import Generator
 import time
 from mazegen import MazeGenerator as Maze
 import shutil
 
-# Color palette: Each theme is a list of ANSI escape codes for background,
-# path, font, pattern, and end color.
 COLOR_PALETTE = [
     # 0: bg,
     # 1: path,
@@ -60,16 +57,10 @@ class DisplayMazeError(Exception):
 def print_maze(
         maze: Maze,
         pattern_42: set[tuple[int, int]] | None,
-        # solution_path: list[tuple[tuple[int, int], str]] | None = None,
-        # maze_fits: bool = False, ya no es necesario,
-        # se determina desde run_visuals()
-        # show_solution: bool = False, ya no es necesario,
-        # se determina con el menú
         theme_idx: int = 4,
-        random_color: bool = False
         ) -> None:
     """
-    Prints the maze to the terminal with optional
+    Print the maze to the terminal with optional
     styling and solution path.
      Args:
             maze (Maze): The maze object to be printed.
@@ -79,15 +70,11 @@ def print_maze(
                 List of coordinates for the solution path. Defaults to None.
             theme_idx (int, optional):
                 Index for the color theme. Defaults to 4.
-            random_color (bool, optional):
-                Whether to select a random color theme. Defaults to False.
      Raises:
             DisplayMazeError:
                 If the maze cannot be displayed properly
                 due to terminal size constraints.
     """
-    if random_color:
-        theme_idx = random.randint(0, len(COLOR_PALETTE) - 1)
 
     bg = COLOR_PALETTE[theme_idx][0]
     ft = COLOR_PALETTE[theme_idx][3]
@@ -97,47 +84,37 @@ def print_maze(
 
     r_style = bg + font
 
-    # sol_set: set[tuple[int, int]] = (
-    #     set(solution_path) if solution_path else set[tuple[int, int]]()
-    # )
-
     top_line = r_style
-    # solved_path = [coord for coord, _ in sol_set]
 
     for x in range(maze.width):
         top_line += "+---"
     top_line += "+" + ec
     print(top_line)
 
-    # for each row of the maze
+    # For each row of the maze
     for y in range(maze.height):
 
-        # vertical cells
+        # Vertical cells
         line_cells = r_style + "|"
 
-        # bottom line of cells
+        # Bottom line of cells
         line_bottom = r_style
 
         for x in range(maze.width):
             cell = maze.grid[x][y]
 
-            # check if the cell is entry, exit, in 42 pattern or normal cell
+            # Check if the cell is entry, exit, in 42 pattern or normal cell
             if (x, y) == maze.entry_xy or (x, y) == maze.exit_xy:
                 content = path + " * " + ec + r_style
             elif (pattern_42 and (x, y) in pattern_42):
                 content = ft + " * " + ec + r_style
-            # mostrar solución instantaneamente ya no es necesario,
-            # debe activarse desde menú
-            # elif (x, y) in solved_path and not maze_fits and show_solution:
-            #     # render solution path
-            #     content = path + " • " + ec + r_style
             else:
                 content = "   "
 
             # East wall
             east_wall = "|" if cell.walls["E"] else " "
 
-            # build line of cells
+            # Build line of cells
             line_cells += content + east_wall
 
             # South wall
@@ -157,12 +134,13 @@ def print_maze(
 
 def header_yield(file_path: str) -> Generator[str, None, None]:
     """
-    Reads a file and yields its content character by character with a delay.
-        Args:
-            file_path (str): The path to the file to be read.
-        Yields:
-            Generator[str, None, None]:
-                A generator that yields characters from the file.
+    Read a file and yields its content character by character with a delay.
+
+    Args:
+        file_path (str): The path to the file to be read.
+    Yields:
+        Generator[str, None, None]:
+            A generator that yields characters from the file.
     """
     try:
         with open(file_path, encoding='utf-8') as f:
@@ -176,7 +154,7 @@ def header_yield(file_path: str) -> Generator[str, None, None]:
 
 def header_animation() -> None:
     """
-    Displays the header animation by reading the header.txt file
+    Display the header animation by reading the header.txt file
     and printing its content with a delay.
     """
     try:
@@ -194,7 +172,7 @@ def header_animation() -> None:
 
 def static_header() -> None:
     """
-    Displays the static header without animation.
+    Display the static header without animation.
     """
     try:
         base_dir = os.path.dirname(__file__)
@@ -207,76 +185,62 @@ def static_header() -> None:
         print(f"Caught an error: {e}")
 
 
-# For print over terminal output, we must use
-# print("\033[) with the specific flag:
-
-# 's' saves a checkpoint of the current terminal-cursor position.
-# 'u' return the cursor-position to the last checkpoint saved.
-# {value} + 'A' moves the terminal-cursor to up direction n_value times.
-# {value} + 'C' moves the terminal-cursor to right direction n_value times.
-
 def animation(maze: Maze,
               solution_path: list[tuple[tuple[int, int], str]],
               theme_idx: int = 4) -> None:
     """
-    Prints step by step the solution path with a delay between each step.
-        Args:
-            maze (Maze): The maze object being displayed.
-            solution_path (list[tuple[int, int]]):
-                List of coordinates for the solution path.
-            theme_idx (int, optional):
-                Index for the color theme. Defaults to 4.
-        Raises:
-            DisplayMazeError:
-                If the terminal is resized during the animation,
-                which could cause display issues
+    Print step by step the solution path with a delay between each step.
+    Args:
+        maze (Maze): The maze object being displayed.
+        solution_path (list[tuple[int, int]]):
+            List of coordinates for the solution path.
+        theme_idx (int, optional):
+            Index for the color theme. Defaults to 4.
+    Raises:
+        DisplayMazeError:
+            If the terminal is resized during the animation,
+            which could cause display issues
+    Note:
+        For better understanding of ANSI code usage
+        check the README.md file, resource section
     """
     sol_color = COLOR_PALETTE[theme_idx][1]
     ec = COLOR_PALETTE[theme_idx][4]
-    # revisa tamaño del terminal al inicio de la animación
+
+    # Check initial terminal size
     initial_size = shutil.get_terminal_size()
-    # Guarda la posicion actual del cursor
+
     solution_coords = [coords for coords, _ in solution_path]
     print("\033[s", end="")
     for x, y in solution_coords:
-        # revisa el tamaño de la terminal en cada iteración,
-        # si cambia o es menor al tamaño inicial, termina la animación
-        # para evitar errores de impresión
+        # Check current terminal size
         current_size = shutil.get_terminal_size()
         if current_size != initial_size:
-            # Regresa al final
             print("\033[u", end="", flush=True)
             raise DisplayMazeError(
                 "Terminal resized during animation. Returning to safe state.")
-        # Reestablece el cursor al checkpoint
         print("\033[u", end="")
 
-        # Calcula el eje Y vertical y el eje X horizontal
+        # Calculate the vertical Y-axis and the horizontal X-axis
         lines_up = 2 * (maze.height - y)
         cols_right = x * 4 + 2
 
         move_up = f"\033[{lines_up}A"
         move_right = f"\033[{cols_right}C" if cols_right > 0 else ""
 
-        # Mueve e imprime sin salto de linea y forzando el flush(necesario)
+        # Move and print without line breaks and force a flush (required)
         print(f"{move_up}{move_right}{sol_color}•{ec}", end="", flush=True)
         time.sleep(0.05)
 
-    # Devuelve el cursor al punto de partida(posicion final de la impresion)
     print("\033[u", end="", flush=True)
 
 
-# esta funcion era "determine_display_mode". Ya no es necesario saber
-# si puede o no puede imprimirse la solución porque se determina desde
-# run_visuals()
-# en este momento la uso para determinar si se puede o no imprimir
-# el laberinto. he quitado el return bool.
 def check_display_size(
         maze_width: int,
         maze_height: int
         ) -> None:
     """
-    Evaluates the terminal size against the maze dimensions to determine
+    Evaluate the terminal size against the maze dimensions to determine
     if the maze can be displayed properly.
      Args:
         maze_width (int): The width of the maze.
@@ -299,7 +263,7 @@ def check_display_size(
 
 
 def menu_visuals(theme_idx: int) -> None:
-    """Displays the menu options with the current theme colors.
+    """Display the menu options with the current theme colors.
      Args:
         theme_idx (int): The index of the current color theme."""
 
@@ -310,7 +274,8 @@ def menu_visuals(theme_idx: int) -> None:
 
     style = f"{bg}{font}"
 
-    print(f"{ft} {font} \nLau&Lau Maze menu: {ec}")
+    print()
+    print(f"{ft} {font} Lau&Lau Maze menu: {ec}")
     print(f"Press {style}'R'{ec} to regenerate maze")
     print(f"Press {style}'S'{ec} to toggle solution animation")
     print(f"Press {style}'C'{ec} to change color theme")
@@ -320,15 +285,10 @@ def menu_visuals(theme_idx: int) -> None:
 def display_maze(
         maze: Maze,
         pattern_42: set[tuple[int, int]] | None,
-        # solution_path: list[tuple[tuple[int, int], str]],
-        # maze_fits: bool = False, se determina desde run_visuals()
-        # instant_solution: bool = False, no es necesario,
-        # se determina con el menú
         theme_idx: int = 4,
-        random_color: bool = False
         ) -> None:
     """
-    Handles the display of the maze in the terminal, including checking
+    Handle the display of the maze in the terminal, including checking
     if the maze fits within the terminal size
     and printing the maze with the appropriate styling.
      Args:
@@ -339,8 +299,6 @@ def display_maze(
             List of coordinates for the solution path. Defaults to None.
         theme_idx (int, optional):
             Index for the color theme. Defaults to 4.
-        random_color (bool, optional):
-            Whether to select a random color theme. Defaults to False.
      Raises:
         DisplayMazeError:
             If the maze cannot be displayed properly
@@ -350,9 +308,5 @@ def display_maze(
     print_maze(
         maze,
         pattern_42,
-        # solution_path,
-        # maze_fits,
-        # instant_solution,
         theme_idx,
-        random_color
         )

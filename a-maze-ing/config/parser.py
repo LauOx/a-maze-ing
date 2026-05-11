@@ -1,7 +1,7 @@
 import sys
 from typing import TypedDict, Dict
 
-# sets of the autorized keys
+# Sets of the autorized keys
 MANDATORY_KEYS: set[str] = {
         "WIDTH",
         "HEIGHT",
@@ -57,7 +57,8 @@ def parse_coord(value: str) -> tuple[int, int]:
         tuple[int, int]: A tuple containing the x and y integer coordinates.
 
     Raises:
-        MazeConfigError: If the input string does not contain exactly two elements.
+        MazeConfigError: If the input string does not contain
+            exactly two elements.
         ValueError: If the coordinate values are not valid integers.
     """
     coor = [c.strip() for c in value.split(',')]
@@ -202,4 +203,3 @@ def parse_config(config_file_path: str) -> ConfigFormat:
             "seed": seed,
             "theme_idx": theme_idx,
             }
-

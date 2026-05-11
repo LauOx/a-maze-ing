@@ -71,6 +71,19 @@ SEED=42
 - Color palettes: https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
 - jperez-s & josjimen a-maze-ing project: https://github.com/thehuan0/A-Maze-ing
 
+### ANSI escape codes usage:
+ANSI escape codes are standardized in-band signaling sequences starting with the escape character (\(ESC\), \x1b or \033) followed by a [ (Control Sequence Introducer) that control cursor position, text colors, and font styles in text terminals. They are used to format terminal output for better readability and interactive applications
+
+**For print over terminal output, we must use**
+print("\033[) with the specific flag:
+- 's' saves a checkpoint of the current terminal-cursor position.
+- 'u' return the cursor-position to the last checkpoint saved.
+- {value} + 'A' moves the terminal-cursor to up direction n_value times.
+- {value} + 'C' moves the terminal-cursor to right direction n_value times.
+
+**Color palette:**
+Each theme is a list of ANSI escape codes for background, path, font, pattern, and end color.
+
 ### AI Usage
 AI was used in this project:
 - Helped with the understanding of complex concepts such as Breadth-First Search (BFS), Graph theory and Spanning trees.
@@ -172,8 +185,8 @@ How it evolved:
 - Clear validation and error handling for configuration input.
 
 ### What could be improved
-- Add support for imperfect maze generation when `PERFECT=false`.
 - Add unit tests to validate behavior and catch regressions.
+- Usage of pydantic for parser and validate scripts
 - Improve support for larger maze sizes and better invalid-config feedback.
 
 ### Tools Used:

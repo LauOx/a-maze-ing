@@ -16,5 +16,9 @@ build/
 venv/
 maze-prueba/
 .venv/
+.vscode/
 
 maze.txt
+*.swp
+*.swo
+*.swn

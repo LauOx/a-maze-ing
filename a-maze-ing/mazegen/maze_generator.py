@@ -12,15 +12,15 @@ class MazeGenerationError(Exception):
 # class Cell and methods
 class Cell:
     """
-    Represents a single unit within a maze grid,
+    Represent a single unit within a maze grid,
     used for Disjoint Set Union (DSU).
 
     A cell tracks its coordinates, its parent in the set forest for path
     compression, and the state of its four surrounding walls.
     """
-    def __init__(self, x: int, y: int):
+    def __init__(self, x: int, y: int) -> None:
         """
-        Initializes a new cell at the given coordinates.
+        Initialize a new cell at the given coordinates.
 
         Args:
             x: The horizontal position of the cell in the grid.
@@ -32,20 +32,21 @@ class Cell:
         self.walls = {"N": True, "S": True, "E": True, "W": True}
 
     def find(self) -> Cell:
-        """find the cell's origin"""
+        """Find the cell's origin"""
         if self.parent != self:
             self.parent = self.parent.find()
         return self.parent
 
     def union(self, other: Cell) -> None:
         """
-        Merges the set of this cell with the set of the other cell.
+        Merge the set of this cell with the set of the other cell.
 
         Args:
         other (Cell): The neighboring cell with which the merge is performed.
         """
         root1 = self.find()
         root2 = other.find()
+        
         # This avoids cycles
         if root1 != root2:
             root2.parent = root1
@@ -56,8 +57,6 @@ class MazeGenerator:
     DIR_DELTA = {'N': (0, -1), 'S': (0, 1), 'E': (1, 0), 'W': (-1, 0)}
     DIR_CHAR = {'N': 'N', 'S': 'S', 'E': 'E', 'W': 'W'}
 
-    # para iniciar necesita todos los datos del config,
-    # se guardan en variables de clase
     def __init__(
             self,
             width: int,
@@ -93,7 +92,7 @@ class MazeGenerator:
     # --- PUBLIC APIS ---
     def generate(self) -> None:
         """
-        Generates the maze using randomized Kruskal's algorithm.
+        Generate the maze using randomized Kruskal's algorithm.
         If PERFECT=False slef._add_cycle to break more walls
         """
         self._generate_logic()
@@ -133,20 +132,21 @@ class MazeGenerator:
 
             for d, (dx, dy) in self.DIR_DELTA.items():
 
-                nx, ny = cx + dx, cy + dy  # moves to first direction (N,S,W,E)
+                # Moves to first direction (N,S,W,E)
+                nx, ny = cx + dx, cy + dy
 
                 if (0 <= nx < self.width
-                        # if is on w limit
+                        # If is on w limit
                         and 0 <= ny < self.height
-                        # have not been explored yet
+                        # Have not been explored yet
                         and (nx, ny) not in origin
                         # Wall False in the direction we want to go
                         and not self.grid[cx][cy].walls[d]):
 
-                    # save the origin and direction taken to reach the new cell
+                    # Save the origin and direction taken to reach the new cell
                     origin[(nx, ny)] = ((cx, cy), d)
 
-                    # save in explored cells
+                    # Save in explored cells
                     explored.append((nx, ny))
 
         if self.exit_xy not in origin:
@@ -189,6 +189,7 @@ class MazeGenerator:
                 f.write("\n")
                 for d in direction_list:
                     f.write(d)
+                f.write("\n")
         except OSError as e:
             print(f"Caught an error generating '{filename}.txt' file: {e}")
 
@@ -208,7 +209,7 @@ class MazeGenerator:
         walls = []
         for x in range(self.width):
             for y in range(self.height):
-                # if the cell is in 42 pattern
+                # If the cell is in 42 pattern
                 if pattern_42 is not None:
                     if (x, y) in pattern_42:
                         continue
@@ -234,7 +235,7 @@ class MazeGenerator:
 
     def _add_cycles(self) -> None:
         """
-        Injects cycles into the maze structure by strategically removing walls.
+        Inject cycles into the maze structure by strategically removing walls.
 
         This method identifies intact walls that are not part of a protected
         pattern, shuffles them to ensure randomness, and removes them if the
@@ -289,10 +290,10 @@ class MazeGenerator:
 
     def _remove_wall(self, c1: Cell, c2: Cell) -> None:
         """
-        checks position of two cells and removes walls inbetween
+        check position of two cells and removes walls inbetween
 
         Args:
-        c1, c2 (cell): two cells that are neighbors
+            c1, c2 (cell): two cells that are neighbors
         """
         # c1 right c2 left
         if c2.x == c1.x + 1:
@@ -383,7 +384,9 @@ class MazeGenerator:
 
     # --- UTILITIES/HELPERS ---
     def hex_maze(self) -> list[str]:
-        """ Return hex representation of maze """
+        """
+        Return hex representation of maze
+        """
         hex_str = "0123456789ABCDEF"
         hex_maze = []
         line = ""
@@ -407,7 +410,8 @@ class MazeGenerator:
     @staticmethod
     def block_42_pattern(width: int, height: int) -> set[tuple[int, int]]:
         """
-        Returns the cells that forms the 42 pattern
+        Return a set of the cells that would form the 42 pattern
+        in a WidthxHeight grid
         """
         pattern = [
             [1, 0, 0, 0, 1, 1, 0],
@@ -428,7 +432,7 @@ class MazeGenerator:
 
     def get_maze_grid(self) -> list[list[int]]:
         """
-        Gets the maze grid as a 2D list of integers, where each integer
+        Get the maze grid as a 2D list of integers, where each integer
         represents the walls of a cell in hexadecimal format.
         """
         return [
@@ -438,6 +442,6 @@ class MazeGenerator:
 
     def get_maze_solution(self) -> list[str]:
         """
-        Gets the solution to the maze as a list of NSWE directions
+        Get the solution to the maze as a list of NSWE directions
         """
         return [d for _, d in self.solve()]
