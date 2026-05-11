@@ -177,11 +177,12 @@ def parse_config(config_file_path: str) -> ConfigFormat:
     exit_xy = parse_coord(temp["EXIT"])
 
     # PERFECT MAZE
-    perfect_str = temp["PERFECT"].lower()
+    perfect_raw = temp["PERFECT"]
+    perfect_str = perfect_raw.lower()
     if perfect_str not in ("true", "false"):
         raise MazeConfigError(
             "PERFECT must be 'true' or 'false' (case-insensitive). "
-            f"Got: '{perfect_str}'"
+            f"Got: '{perfect_raw}'"
         )
     perfect = (perfect_str == "true")
 
