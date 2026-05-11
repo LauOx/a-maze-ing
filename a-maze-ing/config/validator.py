@@ -67,8 +67,6 @@ def check_42_pattern_fits(config: ConfigFormat) -> bool:
     height = config["height"]
     use_pattern_42 = True
     if width < 15 or height < 15:
-        print("Warning: Maze dimensions are too small to accommodate "
-              "the '42' pattern. The pattern will be ignored.")
         use_pattern_42 = False
 
     return use_pattern_42

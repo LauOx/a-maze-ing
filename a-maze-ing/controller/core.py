@@ -110,6 +110,10 @@ def run_visuals(
 
         static_header()
 
+        if pattern is None:
+            print("\n[WARNING] Maze dimensions are too small to accommodate "
+                  "the '42' pattern. \nThe pattern will be ignored.\n", file=sys.stderr)
+
         try:
             display_maze(
                 maze,
