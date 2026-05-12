@@ -59,3 +59,41 @@ Y seguramente muchas cosas más, pero eso es lo principal por ahora.
 
 - Todo lo que tenga que ver con la norma, mypy , flake8, docstrings, y probablemente hints también.
 - docstring y documentación, ingles
+
+
+
+__________________
+
+Exceptions Refactoring
+
+
+I) Gestion de error en el menu UI
+
+In core.py
+
+1- Se implemento el error message para el Maze_size too small para 42_block.
+
+2- Etapa de generacion y display del solve:
+    a- Try/except DisplayMaze.
+    b- Try Maze.solve except MazeGenerationError. (Si falla, continua.)
+        c- Si maze.solve no falla, bloque try para el animation y
+            gestion independiente de DisplayMazeError. (Si Falla, detiene)
+
+3- Se introdujeron bloques Try/except para el UI - readchar.readkey()
+    
+    Key 'r'/'R': Try para el build_maze (Potencial MazeConfigE, 
+            MazeGenerationE, ImposibleMazeE).
+
+
+II) Wrappers    
+
+    1- In parser.py(lineas 169-175): Validamos los int(w) int (h) con wrapper de
+        los ValueError a MazeConfigE.
+
+    2- PERFECT validation (línea 193-196): Se cambio a un raise de
+        MazeConfigError para que no acabe en Except ExceptionError con mensaje
+        de error generico "Unexpecter Error"
+
+    3- En THEME_IDX (200-205): 
+        - Se envolvó int() en try/except (ValueError, TypeError) → MazeConfigError
+        - Se agregó validación de rango (0-4) que no existía antes (prescindible)

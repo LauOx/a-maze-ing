@@ -2,6 +2,7 @@
 import sys
 from controller import setup_config, build_maze, run_visuals
 from config import MazeConfigError, ImposibleMazeError
+from mazegen import MazeGenerationError
 from ui import DisplayMazeError
 
 
@@ -20,6 +21,8 @@ def main() -> None:
         print(f"ImposibleMazeError: {e}")
     except MazeConfigError as e:
         print(f"MazeConfigError Error: {e}")
+    except MazeGenerationError as e:
+        print(f"MazeGenerationError: {e}")
     except DisplayMazeError as e:
         print(f"DisplayMazeError Error: {e}")
     except Exception as e:

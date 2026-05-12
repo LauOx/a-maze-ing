@@ -169,29 +169,30 @@ class MazeGenerator:
         return solve_list
 
     def save_to_file(self, filename: str) -> None:
-        """ Saves hex representation of maze and solution in filename.txt """
-        file = filename
+        """ Saves hex representation of maze and solution in filename.txt
+
+        Raises:
+            MazeGenerationError: If there's an error solving the maze
+            OSError: If there's an error writing to the file (permission,
+                directory issues, etc.)
+        """
         solution = self.solve()
         direction_list = [d for _, d in solution]
         hex_maze = self.hex_maze()
         maze_entry = ",".join(str(i) for i in self.entry_xy)
         maze_exit = ",".join(str(e) for e in self.exit_xy)
-        try:
-            with open(file, 'w') as f:
-                for x_str in hex_maze:
-                    line = x_str
-                    f.write(line)
-                    f.write("\n")
+        with open(filename, 'w') as f:
+            for x_str in hex_maze:
+                f.write(x_str)
                 f.write("\n")
-                f.write(maze_entry)
-                f.write("\n")
-                f.write(maze_exit)
-                f.write("\n")
-                for d in direction_list:
-                    f.write(d)
-                f.write("\n")
-        except OSError as e:
-            print(f"Caught an error generating '{filename}.txt' file: {e}")
+            f.write("\n")
+            f.write(maze_entry)
+            f.write("\n")
+            f.write(maze_exit)
+            f.write("\n")
+            for d in direction_list:
+                f.write(d)
+            f.write("\n")
 
     # --- PRIVATE GENERATION LOGICS ---
     def _generate_logic(self) -> None:

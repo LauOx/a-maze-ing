@@ -4,7 +4,9 @@ from config import (
     parse_config,
     maze_validator,
     check_42_pattern_fits,
-    validate_entry_exit
+    validate_entry_exit,
+    MazeConfigError,
+    ImposibleMazeError,
 )
 from ui import (
     animation,
@@ -14,7 +16,7 @@ from ui import (
     display_maze,
     DisplayMazeError
 )
-from mazegen import MazeGenerator as Maze
+from mazegen import MazeGenerator as Maze, MazeGenerationError
 try:
     import readchar
 except ImportError:
@@ -86,7 +88,7 @@ def run_visuals(
         maze (Maze):
             The maze object to be displayed.
         pattern (Set[tuple[int, int]] | None):
-            Set of coordinates for the '42'
+e 
             pattern cells, or None if the pattern is not applied.
         config (dict):
             The configuration dictionary containing settings for the maze
@@ -125,43 +127,51 @@ def run_visuals(
             print(f"\nDisplayMazeError: {e}")
             return
 
-        maze.save_to_file(config["output_file"])
+        try:
+            maze.save_to_file(config["output_file"])
+        except (OSError, MazeGenerationError) as e:
+            error_type = type(e).__name__
+            print(f"\n[WARNING] {error_type} saving maze to file: {e}", file=sys.stderr)
 
         if show_solution:
 
             try:
-                animation(maze, maze.solve(), config["theme_idx"])
+                solution = maze.solve()
+            except MazeGenerationError as e:
+                print(f"\n\nMazeGenerationError: {e}", file=sys.stderr)
+                show_solution = False
+            else:
+                try:
+                    animation(maze, solution, config["theme_idx"])
 
-            except DisplayMazeError as e:
-                print(f"\n\nDisplayMazeError: {e}")
-                print("bye!")
-                return
+                except DisplayMazeError as e:
+                    print(f"\n\nDisplayMazeError: {e}")
+                    print("bye!")
+                    return
 
         menu_visuals(config["theme_idx"])
 
-        try:
+        key = readchar.readkey()
 
-            key = readchar.readkey()
+        if key == "q" or key == "Q":
+            running = False
 
-            if key == "q" or key == "Q":
-                running = False
-
-            elif key == "r" or key == "R":
-                show_solution = False
+        elif key == "r" or key == "R":
+            show_solution = False
+            try:
                 maze, pattern = build_maze(config)
+            except (MazeConfigError, ImposibleMazeError, MazeGenerationError) as e:
+                print(f"\nError al regenerar: {e}", file=sys.stderr)
+                print("Manteniendo el maze actual.", file=sys.stderr)
 
-            elif key == "s" or key == "S":
-                show_solution = not show_solution
+        elif key == "s" or key == "S":
+            show_solution = not show_solution
 
-            elif key == "c" or key == "C":
-                config["theme_idx"] = (config["theme_idx"] + 1) % 5
+        elif key == "c" or key == "C":
+            config["theme_idx"] = (config["theme_idx"] + 1) % 5
 
-            else:
-                print("\a", end="")
-
-        except KeyboardInterrupt:
-            print("\nKeyboardInterrupt detected. Bye!...", file=sys.stderr)
-            return
+        else:
+            print("\a", end="")
 
     print("\033[H\033[J\033[3J", end="")
     print("bye!")

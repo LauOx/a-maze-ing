@@ -73,7 +73,7 @@ def parse_coord(value: str) -> tuple[int, int]:
         y = int(coor[1])
         return (x, y)
     except ValueError:
-        raise ValueError(f"Invalid coordinate value: '{value}' "
+        raise MazeConfigError(f"Invalid coordinate value: '{value}' "
                          "(Expected x,y with integers)")
 
 
@@ -166,8 +166,13 @@ def parse_config(config_file_path: str) -> ConfigFormat:
     # WIDTH AND HEIGHT
     w = temp["WIDTH"]
     h = temp["HEIGHT"]
-    width = int(w)
-    height = int(h)
+    try:
+        width = int(w)
+        height = int(h)
+    except ValueError:
+        raise MazeConfigError(
+            f"WIDTH and HEIGHT must be integers, got W='{w}' H='{h}'"
+        )
     if width <= 0 or height <= 0:
         raise MazeConfigError('WIDTH and HEIGHT must be positive '
                               'integers greater than 0. Entered '
@@ -176,21 +181,28 @@ def parse_config(config_file_path: str) -> ConfigFormat:
     try:
         entry_xy = parse_coord(temp["ENTRY"])
         exit_xy = parse_coord(temp["EXIT"])
-    except ValueError as e:
-        print(f"ValueError: {e}", file=sys.stderr)
-        exit(1)
-    except MazeConfigError as e:
-        print(f"MazeConfigError: {e}", file=sys.stderr)
-        exit(1)
+    except (ValueError, MazeConfigError) as e:
+        raise MazeConfigError(f"{type(e).__name__}: {e}", file=sys.stderr)
 
     # PERFECT MAZE
     perfect_str = temp["PERFECT"].lower()
     if perfect_str not in ("true", "false"):
-        raise ValueError("PERFECT needs to be 'true' or 'false'.")
+        raise MazeConfigError(
+            f"PERFECT needs to be 'true' or 'false', got '{temp['PERFECT']}'"
+        )
     perfect = (perfect_str == "true")
 
     # # UI SETTINGS (default values)
-    theme_idx = int(temp.get("THEME_IDX", 4))
+    try:
+        theme_idx = int(temp.get("THEME_IDX", 4))
+    except (ValueError, TypeError):
+        raise MazeConfigError(
+            f"THEME_IDX must be an integer, got '{temp.get('THEME_IDX')}'"
+        )
+    if not 0 <= theme_idx <= 4:
+        raise MazeConfigError(
+            f"THEME_IDX must be between 0 and 4, got {theme_idx}"
+        )
 
     # Return ConfigFormat
     return {
