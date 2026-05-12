@@ -1,4 +1,5 @@
 import os
+import sys
 from typing import Generator
 import time
 from mazegen import MazeGenerator as Maze

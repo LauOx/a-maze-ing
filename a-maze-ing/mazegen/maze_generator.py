@@ -46,7 +46,6 @@ class Cell:
         """
         root1 = self.find()
         root2 = other.find()
-        
         # This avoids cycles
         if root1 != root2:
             root2.parent = root1

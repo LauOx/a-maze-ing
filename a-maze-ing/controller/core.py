@@ -1,3 +1,4 @@
+import sys
 from config import (
     ConfigFormat,
     parse_config,
@@ -16,6 +17,7 @@ from ui import (
     DisplayMazeError,
 )
 from mazegen import MazeGenerator as Maze, MazeGenerationError
+from types import ModuleType
 
 
 class DependencyError(RuntimeError):
@@ -23,7 +25,7 @@ class DependencyError(RuntimeError):
     pass
 
 
-def _load_readchar():
+def _load_readchar() -> ModuleType:
     """Lazy import of readchar, raising DependencyError if missing."""
     try:
         import readchar
@@ -126,7 +128,8 @@ def run_visuals(
 
         if pattern is None:
             print("\n[WARNING] Maze dimensions are too small to accommodate "
-                  "the '42' pattern. \nThe pattern will be ignored.\n", file=sys.stderr)
+                  "the '42' pattern. \nThe pattern will be ignored.\n",
+                  file=sys.stderr)
 
         try:
             display_maze(
@@ -171,7 +174,11 @@ def run_visuals(
             show_solution = False
             try:
                 maze, pattern = build_maze(config)
-            except (MazeConfigError, ImposibleMazeError, MazeGenerationError) as e:
+            except (
+                MazeConfigError,
+                ImposibleMazeError,
+                MazeGenerationError
+            ) as e:
                 print(f"{type(e).__name__}: {e}", file=sys.stderr)
                 print("Manteniendo el maze actual.", file=sys.stderr)
 
