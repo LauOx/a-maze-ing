@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sys
-from controller import setup_config, build_maze, run_visuals
+from controller import setup_config, build_maze, run_visuals, DependencyError
 from config import MazeConfigError, ImposibleMazeError
 from mazegen import MazeGenerationError
 from ui import DisplayMazeError
@@ -17,21 +17,21 @@ def main() -> None:
         maze, pattern = build_maze(config)
         run_visuals(maze, pattern, config)
 
-    except ImposibleMazeError as e:
-        print(f"ImposibleMazeError: {e}")
-    except MazeConfigError as e:
-        print(f"MazeConfigError Error: {e}")
-    except MazeGenerationError as e:
-        print(f"MazeGenerationError: {e}")
-    except DisplayMazeError as e:
-        print(f"DisplayMazeError Error: {e}")
+    except (
+        ImposibleMazeError,
+        MazeConfigError,
+        DependencyError,
+        DisplayMazeError,
+        MazeGenerationError,
+    ) as e:
+        print(f"{type(e).__name__}: {e}", file=sys.stderr)
     except Exception as e:
-        print(f"Unexpected Error: {e}")
+        print(f"{type(e).__name__}: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":
     try:
         main()
     except (KeyboardInterrupt, EOFError):
-        print("\nUser interrupted. Bye!")
+        print("\nUser interrupted. Bye!", file=sys.stderr)
         raise SystemExit(0)

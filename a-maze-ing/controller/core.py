@@ -1,4 +1,3 @@
-import sys
 from config import (
     ConfigFormat,
     parse_config,
@@ -14,16 +13,27 @@ from ui import (
     static_header,
     menu_visuals,
     display_maze,
-    DisplayMazeError
+    DisplayMazeError,
 )
 from mazegen import MazeGenerator as Maze, MazeGenerationError
-try:
-    import readchar
-except ImportError:
-    print("ImportError: Library 'readchar' is missing", file=sys.stderr)
-    print("please run 'make install' (or: 'pip install .') "
-          "to install the required dependencies", file=sys.stderr)
-    sys.exit(1)
+
+
+class DependencyError(RuntimeError):
+    """Exception raised when a required runtime dependency is missing."""
+    pass
+
+
+def _load_readchar():
+    """Lazy import of readchar, raising DependencyError if missing."""
+    try:
+        import readchar
+    except ImportError as exc:
+        raise DependencyError(
+            "Library 'readchar' is missing. "
+            "Run 'make install' (or: 'pip install .') "
+            "to install the required dependencies."
+        ) from exc
+    return readchar
 
 
 def setup_config(file_path: str) -> ConfigFormat:
@@ -88,12 +98,13 @@ def run_visuals(
         maze (Maze):
             The maze object to be displayed.
         pattern (Set[tuple[int, int]] | None):
-e 
             pattern cells, or None if the pattern is not applied.
         config (dict):
             The configuration dictionary containing settings for the maze
             generation and display.
     Raises:
+        DependencyError:
+            If the input dependency (readchar) is missing.
         DisplayMazeError:
             If there is an error during the display
             of the maze or the solution animation.
@@ -101,6 +112,7 @@ e
         For better understanding of ANSI code usage
         check the README.md file, resource section"""
 
+    readchar = _load_readchar()
     print("\033[H\033[J\033[3J", end="")
     running = True
     show_solution = False
@@ -124,28 +136,27 @@ e
             )
 
         except DisplayMazeError as e:
-            print(f"\nDisplayMazeError: {e}")
+            print(f"{type(e).__name__}: {e}", file=sys.stderr)
             return
 
         try:
             maze.save_to_file(config["output_file"])
         except (OSError, MazeGenerationError) as e:
-            error_type = type(e).__name__
-            print(f"\n[WARNING] {error_type} saving maze to file: {e}", file=sys.stderr)
+            print(f"{type(e).__name__}: {e}", file=sys.stderr)
 
         if show_solution:
 
             try:
                 solution = maze.solve()
             except MazeGenerationError as e:
-                print(f"\n\nMazeGenerationError: {e}", file=sys.stderr)
+                print(f"{type(e).__name__}: {e}", file=sys.stderr)
                 show_solution = False
             else:
                 try:
                     animation(maze, solution, config["theme_idx"])
 
                 except DisplayMazeError as e:
-                    print(f"\n\nDisplayMazeError: {e}")
+                    print(f"{type(e).__name__}: {e}", file=sys.stderr)
                     print("bye!")
                     return
 
@@ -161,7 +172,7 @@ e
             try:
                 maze, pattern = build_maze(config)
             except (MazeConfigError, ImposibleMazeError, MazeGenerationError) as e:
-                print(f"\nError al regenerar: {e}", file=sys.stderr)
+                print(f"{type(e).__name__}: {e}", file=sys.stderr)
                 print("Manteniendo el maze actual.", file=sys.stderr)
 
         elif key == "s" or key == "S":

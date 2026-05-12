@@ -1,4 +1,3 @@
-import sys
 from typing import TypedDict, Dict
 
 # Sets of the autorized keys
@@ -178,11 +177,8 @@ def parse_config(config_file_path: str) -> ConfigFormat:
                               'integers greater than 0. Entered '
                               f'W: {w} and H: {h}')
     # ENTRY AND EXIT
-    try:
-        entry_xy = parse_coord(temp["ENTRY"])
-        exit_xy = parse_coord(temp["EXIT"])
-    except (ValueError, MazeConfigError) as e:
-        raise MazeConfigError(f"{type(e).__name__}: {e}", file=sys.stderr)
+    entry_xy = parse_coord(temp["ENTRY"])
+    exit_xy = parse_coord(temp["EXIT"])
 
     # PERFECT MAZE
     perfect_str = temp["PERFECT"].lower()

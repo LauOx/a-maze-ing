@@ -141,15 +141,13 @@ def header_yield(file_path: str) -> Generator[str, None, None]:
     Yields:
         Generator[str, None, None]:
             A generator that yields characters from the file.
+    Raises:
+        FileNotFoundError: If the header file is not found.
     """
-    try:
-        with open(file_path, encoding='utf-8') as f:
-            for line in f:
-                for c in line:
-                    yield c
-
-    except FileNotFoundError as e:
-        print(f"Caught an error: {e}")
+    with open(file_path, encoding='utf-8') as f:
+        for line in f:
+            for c in line:
+                yield c
 
 
 def header_animation() -> None:
@@ -167,7 +165,7 @@ def header_animation() -> None:
             print("\033[s", end="")
 
     except FileNotFoundError as e:
-        print(f"Caught an error: {e}")
+        print(f"{type(e).__name__}: {e}", file=sys.stderr)
 
 
 def static_header() -> None:
@@ -182,7 +180,7 @@ def static_header() -> None:
             print(f.read(), end="", flush=True)
 
     except FileNotFoundError as e:
-        print(f"Caught an error: {e}")
+        print(f"{type(e).__name__}: {e}", file=sys.stderr)
 
 
 def animation(maze: Maze,
